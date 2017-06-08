@@ -114,6 +114,7 @@ public class MainActivity extends Activity {
         int total = 0;
 
         for (Quote quote : quotes) {
+
             if (quote.getRating() >= 10) {
                 count++;
             }
@@ -139,7 +140,7 @@ public class MainActivity extends Activity {
         }
 
         quote.setRating(rating - 5);
-        quotesDAO.updateQuoteRating(id, rating - 5);
+        quotesDAO.updateQuoteRating(id, quote.getRating());
 
         nextButton();
     }
@@ -172,7 +173,7 @@ public class MainActivity extends Activity {
         }
 
         quote.setRating(rating + 5);
-        quotesDAO.updateQuoteRating(id, rating + 5);
+        quotesDAO.updateQuoteRating(id, quote.getRating());
 
         nextButton();
     }
@@ -181,8 +182,6 @@ public class MainActivity extends Activity {
         if (quotes.isEmpty()) {
             return;
         }
-
-        int repeat = 0;
 
         boolean found = false;
         Quote quote = null;
@@ -202,21 +201,14 @@ public class MainActivity extends Activity {
                 found = false;
             }
             if (quote.getRating() >= 10) {
-                // a good quote can be seen again
                 int rating = quote.getRating();
 
+                // you can see a good quote again
                 quote.setRating(rating - 1);
-                quotesDAO.updateQuoteRating(id, rating - 1);
+                quotesDAO.updateQuoteRating(id, quote.getRating());
 
                 found = false;
             }
-
-            if (repeat++ > 3) {
-                //showToast("Shuffle!");
-                //break;
-            }
-
-            found = true;
         }
 
         authorTextView.setText(quote.getAuthor());
