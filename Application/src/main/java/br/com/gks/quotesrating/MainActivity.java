@@ -110,19 +110,19 @@ public class MainActivity extends Activity {
     }
 
     private void countGreatQuotes() {
-        int count = 0;
+        int greats = 0;
         int total = 0;
 
         for (Quote quote : quotes) {
 
             if (quote.getRating() >= 10) {
-                count++;
+                greats++;
             }
 
             total++;
         }
 
-        showToast("Great quotes: " + count + " Total: " + total);
+        showToast("Great quotes: " + greats + " Total: " + total);
     }
 
     private void badButton() {
@@ -130,17 +130,17 @@ public class MainActivity extends Activity {
         int id = quote.getId();
         int rating = quote.getRating();
 
-        if (rating <= -10) {
-            showToast("Awful quote!");
-            quotesDAO.deleteQuote(id);
-        }
-
-        if (rating > 5) {
+        if (rating > 5) { // 6 ~ 9
             rating = 0;
         }
 
         quote.setRating(rating - 5);
         quotesDAO.updateQuoteRating(id, quote.getRating());
+
+        if (quote.getRating() <= -10) {
+            showToast("Awful quote!");
+            quotesDAO.deleteQuote(id);
+        }
 
         nextButton();
     }
@@ -168,12 +168,12 @@ public class MainActivity extends Activity {
         int id = quote.getId();
         int rating = quote.getRating();
 
-        if (rating >= 10) {
-            showToast("Great quote!");
-        }
-
         quote.setRating(rating + 5);
         quotesDAO.updateQuoteRating(id, quote.getRating());
+
+        if (quote.getRating() >= 10) {
+            showToast("Great quote!");
+        }
 
         nextButton();
     }
