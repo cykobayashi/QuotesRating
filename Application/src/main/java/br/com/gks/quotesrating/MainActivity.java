@@ -1,15 +1,22 @@
 package br.com.gks.quotesrating;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import br.com.gks.quotesrating.dao.QuotesDAO;
 import br.com.gks.quotesrating.model.Quote;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.os.Environment;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,8 +24,9 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    private TextView quoteTextView;
     private TextView authorTextView;
+    private TextView quoteTextView;
+    private TextView counterTextView;
     private Button mBadButton;
     private Button mSkipButton;
     private Button mGoodButton;
@@ -30,6 +38,7 @@ public class MainActivity extends Activity {
     private List<Quote> quotes;
     private Random random;
     private int pos;
+    private int count;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +64,7 @@ public class MainActivity extends Activity {
 
         authorTextView = (TextView) findViewById(R.id.authorTextView);
         quoteTextView = (TextView) findViewById(R.id.quoteTextView);
+        counterTextView = (TextView) findViewById(R.id.counterTextView);
 
         mBadButton = (Button) findViewById(R.id.badButton);
         mBadButton.setOnClickListener(new View.OnClickListener() {
@@ -214,6 +224,9 @@ public class MainActivity extends Activity {
         authorTextView.setText(quote.getAuthor());
         quoteTextView.setText(quote.getQuote());
 
+        count++;
+        counterTextView.setText("Count: " + count);
+
         // Controla a fila
         while (lasts.size() > 40) {
             lasts.remove(0);
@@ -225,6 +238,61 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                writeFileOnExternalStorage();
+                Toast.makeText(this, "Quotes exported.", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+        return true;
+    }
+
+    public void writeFileOnExternalStorage(){
+
+        // Storage Permissions
+        final int REQUEST_EXTERNAL_STORAGE = 1;
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+
+        int permission = this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            this.requestPermissions(
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+
+        try{
+            String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
+            File gpxfile = new File(extStorageDirectory, "quotes.csv");
+            FileWriter writer = new FileWriter(gpxfile);
+
+            StringBuilder sb = new StringBuilder();
+
+            for (Quote quote : quotes) {
+                sb.append(quote.getQuote());
+                sb.append(";");
+                sb.append(quote.getAuthor());
+                sb.append(";");
+                sb.append(quote.getRating());
+            }
+
+            writer.append(sb.toString());
+            writer.flush();
+            writer.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
     }
 
 }
