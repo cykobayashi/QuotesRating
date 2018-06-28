@@ -1,7 +1,10 @@
 package br.com.gks.quotesrating;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -56,6 +59,7 @@ public class MainActivity extends Activity {
         nextButton();
 
         addQuotes();
+        //importCSV();
 
         System.out.println("create");
     }
@@ -93,6 +97,29 @@ public class MainActivity extends Activity {
                 goodButton();
             }
         });
+
+    }
+
+    private void importCSV() {
+
+        try {
+            InputStreamReader is = new InputStreamReader(getAssets().open("quotes.csv"));
+            BufferedReader reader = new BufferedReader(is);
+            String line;
+
+            int count = 0;
+
+            while ((line = reader.readLine()) != null) {
+                String tokens[] = line.split(";");
+                quotesDAO.insertQuote(tokens[0], tokens[1], 0);
+                count++;
+            }
+
+            showToast("Lines: " + count);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -278,11 +305,14 @@ public class MainActivity extends Activity {
             StringBuilder sb = new StringBuilder();
 
             for (Quote quote : quotes) {
+                sb.append("\"");
                 sb.append(quote.getQuote());
+                sb.append("\"");
                 sb.append(";");
                 sb.append(quote.getAuthor());
                 sb.append(";");
                 sb.append(quote.getRating());
+                sb.append("\r\n");
             }
 
             writer.append(sb.toString());
