@@ -50,6 +50,15 @@ public class QuotesDAO {
 		this.close();
 	}
 
+	public void deleteAll() {
+		this.open();
+
+		database.delete("quotes", null, null);
+
+		this.close();
+	}
+
+
 	public void updateQuoteRating(int id, int rating) {
 		this.open();
 
